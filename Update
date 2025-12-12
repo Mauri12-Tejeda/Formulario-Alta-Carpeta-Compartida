@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Habilitación de Carpetas Compartidas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1:#0a3876;
+      --bg2:#00b894;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --blue:#0b5bd3;
+      --danger:#d90429;
+      --ok:#0f766e;
+      --warn:#b45309;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+      color:var(--ink);
+      background:linear-gradient(135deg,var(--bg1) 0%, #008fbe 45%, var(--bg2) 100%);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .shell{
+      width:100%;
+      max-width:1180px;
+      background:rgba(255,255,255,.10);
+      padding:18px;
+      border-radius:22px;
+    }
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      appearance:none;border:0;cursor:pointer;
+      padding:10px 14px;border-radius:12px;
+      font-weight:800;
+      background:#ffffff;color:#0b2a55;
+      box-shadow:0 10px 25px rgba(0,0,0,.18);
+      transition:transform .05s ease, opacity .15s ease;
+      display:inline-flex;align-items:center;gap:8px;
+      text-decoration:none;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{background:var(--blue); color:#fff}
+    .btn.danger{background:#b91c1c; color:#fff}
+    .btn.small{padding:8px 10px; border-radius:10px; font-size:13px}
+    .card{
+      background:var(--card);
+      border-radius:18px;
+      padding:18px;
+      box-shadow:0 18px 45px rgba(0,0,0,.20);
+    }
+    .pdf-area{background:#fff;color:#000}
+
+    .pdf-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .pdf-header .meta{font-size:12px;color:#111}
+    .pdf-header .meta strong{display:block;font-size:14px}
+    .pdf-stamp{
+      font-size:12px;color:#111;
+      text-align:right;white-space:nowrap;
+      padding-right: 12px;
+    }
+    .banner{
+      margin:10px 0 18px;
+      border:2px solid #fecaca;
+      background:#fff1f2;
+      color:var(--danger);
+      font-weight:900;
+      text-align:center;
+      padding:10px 12px;
+      border-radius:14px;
+      letter-spacing:.2px;
+    }
+    .title{
+      display:flex;flex-direction:column;gap:6px;margin-bottom:14px;
+    }
+    .title h1{margin:0;font-size:22px;line-height:1.2}
+    .title p{margin:0;color:var(--muted);font-size:14px}
+
+    .section{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      margin-top:14px;
+      background:#fff;
+    }
+    .section-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .section-head h2{margin:0;font-size:16px}
+    .section-head .desc{color:var(--muted);font-size:13px;margin-top:2px}
+    .section-head .right{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+
+    .field{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .field label{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      font-size:12px;font-weight:900;color:#0b2a55;margin-bottom:6px;
+    }
+    .req{color:var(--danger);font-weight:900}
+    .hint{font-size:12px;color:var(--muted);margin-top:6px}
+    input, textarea, select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 10px;
+      outline:none;
+      font-size:14px;
+      background:#fff;
+    }
+    textarea{min-height:44px; resize:vertical}
+
+    .row2{grid-column:1/-1}
+
+    .inline{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid var(--line); background:#f8fafc;
+      font-size:13px; font-weight:700;
+    }
+    .pill input{width:auto}
+
+    .alert{
+      border:1px solid #fde68a;
+      background:#fffbeb;
+      color:#7c2d12;
+      padding:10px 12px;
+      border-radius:14px;
+      font-size:13px;
+      margin-top:12px;
+      display:none;
+    }
+    .alert.show{display:block}
+
+    /* ================= Tabla (pantalla) ================= */
+    #tablaUsuarios { table-layout: fixed; }
+    #tablaUsuarios th:nth-child(1), #tablaUsuarios td:nth-child(1){ width: 28%; }
+    #tablaUsuarios th:nth-child(2), #tablaUsuarios td:nth-child(2){ width: 12%; } /* Usuario PC */
+    #tablaUsuarios th:nth-child(3), #tablaUsuarios td:nth-child(3){ width: 12%; }
+    #tablaUsuarios th:nth-child(4), #tablaUsuarios td:nth-child(4){ width: 28%; }
+    #tablaUsuarios th:nth-child(5), #tablaUsuarios td:nth-child(5){ width: 10%; }
+    #tablaUsuarios th:nth-child(6), #tablaUsuarios td:nth-child(6){ width: 10%; }
+
+    #tablaUsuarios td input{
+      width: 100%;
+      min-width: 0;
+    }
+
+    .table-wrap{
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:auto;
+      background:#fff;
+      margin-top:10px;
+    }
+    table{
+      border-collapse:collapse;
+      width:100%;
+      min-width:980px;
+    }
+    thead th{
+      position:sticky; top:0;
+      background:#f1f5f9; z-index:2;
+    }
+    th, td{
+      border-bottom:1px solid var(--line);
+      border-right:1px solid var(--line);
+      padding:10px;
+      vertical-align:top;
+      font-size:13px;
+    }
+    th:last-child, td:last-child{border-right:0}
+    tbody tr:last-child td{border-bottom:0}
+    th{
+      text-transform:uppercase;
+      font-size:11px;
+      letter-spacing:.3px;
+      color:#0b2a55;
+    }
+    .subnote{
+      display:block;
+      text-transform:none;
+      font-weight:700;
+      color:var(--muted);
+      letter-spacing:0;
+      margin-top:4px;
+      font-size:11px;
+    }
+    .row-actions{display:flex;justify-content:center;align-items:center;gap:8px;min-width:78px}
+    .footer-note{margin-top:14px;font-size:12px;color:var(--muted)}
+
+    /* ================= PDF (Acta) ================= */
+    .for-pdf input, .for-pdf textarea, .for-pdf select, .for-pdf button { display:none !important; }
+    .for-pdf .btn { display:none !important; }
+
+    .for-pdf .pdf-value{
+      display:block !important;
+      border:1px solid #cbd5e1;
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:12px;
+      line-height:1.35;
+      min-height:30px;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      background:#fff;
+    }
+    .for-pdf td .pdf-value{
+      min-height:28px;
+      padding:6px 8px;
+      border-radius:8px;
+    }
+
+    /* Evitar cortes feos */
+    .for-pdf .section,
+    .for-pdf .section-head,
+    .for-pdf #pdfCommonSummary,
+    .for-pdf .banner {
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+    }
+
+    .for-pdf .banner{font-size:12px;padding:8px 10px;border-radius:12px}
+
+    /* ===================== NUEVO: PDF listado por usuario (cards) ===================== */
+    .pdf-user-list { display:none; }
+
+    .for-pdf .table-wrap { display:none !important; }      /* oculto tabla en PDF */
+    .for-pdf .pdf-user-list { display:block !important; }  /* muestro listado */
+
+    .for-pdf .pdf-user-card{
+      border:1px solid #cbd5e1;
+      border-radius:14px;
+      padding:10px;
+      margin:8px 0;
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+      background:#fff;
+    }
+    .for-pdf .pdf-user-card h3{
+      margin:0 0 8px;
+      font-size:12px;
+      font-weight:900;
+      color:#0b2a55;
+    }
+    .for-pdf .pdf-user-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:6px 10px;
+    }
+    .for-pdf .pdf-kv{
+      font-size:12px;
+      line-height:1.35;
+    }
+    .for-pdf .pdf-kv strong{
+      display:block;
+      font-size:11px;
+      color:#334155;
+      margin-bottom:2px;
+    }
+
+    /* PDF: “Datos comunes” en 2 columnas compactas */
+    .for-pdf #pdfCommonSummary{
+      padding:8px !important;
+      margin-top:8px !important;
+    }
+    .for-pdf #pdfCommonSummary .pdf-common-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:4px 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="btn" href="javascript:history.back()">← Volver atrás</a>
+      <div class="inline">
+        <button class="btn" id="btnReset" type="button">Limpiar</button>
+        <button class="btn primary" id="btnPDF" type="button">Convertir a PDF</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="pdfArea" class="pdf-area">
+
+        <div class="pdf-header">
+          <div class="meta">
+            <strong>Solicitud – Habilitación de Carpetas Compartidas</strong>
+            <span>Ministerio / Seguridad Informática</span>
+          </div>
+          <div class="pdf-stamp" id="stamp"></div>
+        </div>
+
+        <div class="banner">
+          PARA REALIZAR LA TAREA SOLICITADA ES NECESARIO COMPLETAR LA TOTALIDAD DE LOS CAMPOS DEL FORMULARIO
+        </div>
+
+        <div class="title">
+          <h1>Formulario de Acceso a Carpetas Compartidas</h1>
+          <p>Organizado por bloques: Solicitud → Responsable → Usuarios.</p>
+        </div>
+
+        <!-- ===================== BLOQUE 1 ===================== -->
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <h2>Bloque 1 — Datos de la Solicitud</h2>
+              <div class="desc">Qué carpeta y qué tipo de acceso se solicita.</div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="field">
+              <label>Tipo de solicitud <span class="req">*</span></label>
+              <select id="tipoSolicitud" required>
+                <option value="">Seleccionar…</option>
+                <option value="Carpeta existente">Carpeta existente</option>
+                <option value="Crear nueva carpeta">Crear nueva carpeta</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="rutaCarpeta">Nombre / Ruta de la carpeta <span class="req">*</span></label>
+              <input id="rutaCarpeta" type="text" required placeholder="Ej: \\SERVIDOR\Dependencia\Area" />
+              <div class="hint">Sugerencia: use la ruta UNC si aplica.</div>
+            </div>
+
+            <div class="field">
+              <label for="servidor">Servidor / Recurso (opcional)</label>
+              <input id="servidor" type="text" placeholder="Ej: FILE01 / NAS-SEG / etc." />
+            </div>
+
+            <div class="field">
+              <label>Tipo de acceso solicitado <span class="req">*</span></label>
+              <select id="tipoAcceso" required>
+                <option value="">Seleccionar…</option>
+                <option value="Lectura">Lectura</option>
+                <option value="Escritura">Escritura</option>
+                <option value="Control total">Control total</option>
+              </select>
+            </div>
+
+            <div class="field row2">
+              <label for="motivo">Motivo / Justificación <span class="req">*</span></label>
+              <textarea id="motivo" required placeholder="Detalle breve del motivo del acceso (1–2 líneas)."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== BLOQUE 2 ===================== -->
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <h2>Bloque 2 — Responsable y Referencia</h2>
+              <div class="desc">Quién responde por la información y quién ya tiene acceso.</div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="field">
+              <label for="respInfo">Responsable de la Información (Grado, Nombre y Apellido) <span class="req">*</span></label>
+              <input id="respInfo" type="text" required placeholder="Ej: Insp. Juan Pérez" />
+            </div>
+
+            <div class="field">
+              <label for="respMail">Correo Electrónico Institucional del Responsable <span class="req">*</span></label>
+              <input id="respMail" type="email" required placeholder="usuario@policiadelaciudad.gob.ar" />
+              <div class="hint">Se valida dominio institucional permitido.</div>
+            </div>
+
+            <div class="field">
+              <label for="destOrg">Destino laboral (según organigrama) <span class="req">*</span></label>
+              <input id="destOrg" type="text" required placeholder="Ej: Dirección General / División / Depto." />
+            </div>
+
+            <div class="field">
+              <label for="userRef">Usuario de referencia (con acceso) <span class="req">*</span></label>
+              <input id="userRef" type="text" required placeholder="Ej: usuario.referencia" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== BLOQUE 3 ===================== -->
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <h2>Bloque 3 — Usuarios a Habilitar</h2>
+              <div class="desc">Complete datos comunes (opcional) y agregue usuarios en la grilla.</div>
+            </div>
+            <div class="right">
+              <button class="btn small" id="btnAddRow" type="button">+ Agregar usuario</button>
+            </div>
+          </div>
+
+          <!-- Datos comunes -->
+          <div class="inline" style="margin-bottom:10px;">
+            <label class="pill" for="useCommon">
+              <input id="useCommon" type="checkbox" checked />
+              Aplicar “Datos comunes” a todos los usuarios
+            </label>
+          </div>
+
+          <div class="grid" id="commonBlock">
+            <div class="field">
+              <label for="comDestino">Destino laboral (común)</label>
+              <input id="comDestino" type="text" placeholder="Ej: según orgánica" />
+            </div>
+            <div class="field">
+              <label for="comDireccion">Dirección laboral (común)</label>
+              <input id="comDireccion" type="text" placeholder="Ej: calle y número" />
+            </div>
+            <div class="field">
+              <label for="comTelefono">Teléfono laboral (común)</label>
+              <input id="comTelefono" type="text" placeholder="Ej: fijo/asignado" />
+            </div>
+            <div class="field">
+              <label for="comInterno">Interno (común)</label>
+              <input id="comInterno" type="text" placeholder="Ej: 1234" />
+            </div>
+          </div>
+
+          <div class="alert" id="alertBox"></div>
+
+          <!-- Grilla (pantalla) -->
+          <div class="table-wrap">
+            <table id="tablaUsuarios">
+              <thead>
+                <tr>
+                  <th>Apellido y Nombre <span class="subnote">(completo)</span></th>
+                  <th>Usuario de PC <span class="subnote">(login)</span></th>
+                  <th>CUIL <span class="subnote">(11 dígitos)</span></th>
+                  <th>Correo institucional <span class="subnote">(dominio permitido)</span></th>
+                  <th>Legajo <span class="subnote">(numérico)</span></th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyUsuarios"></tbody>
+            </table>
+          </div>
+
+          <!-- NUEVO: listado PDF por usuario (se llena por JS, SOLO se ve en PDF) -->
+          <div id="pdfUserList" class="pdf-user-list"></div>
+
+          <div class="footer-note">
+            Nota: Se validan duplicados de CUIL y Usuario de PC.
+          </div>
+        </div>
+
+        <div class="banner" style="margin-top:16px;">
+          PARA REALIZAR LA TAREA SOLICITADA ES NECESARIO COMPLETAR LA TOTALIDAD DE LOS CAMPOS DEL FORMULARIO
+        </div>
+
+        <div class="footer-note">
+          * Campos obligatorios. Para PDF: “Convertir a PDF”.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- html2pdf (usa html2canvas + jsPDF) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <script>
+    // ========= Helpers =========
+    const $ = (id) => document.getElementById(id);
+    const tbody = $('tbodyUsuarios');
+    const alertBox = $('alertBox');
+
+    const allowedDomains = [
+      '@policiadelaciudad.gob.ar',
+      '@buenosaires.gob.ar'
+    ];
+
+    function nowStamp(){
+  const d = new Date();
+  const pad2 = (n) => String(n).padStart(2, '0');
+
+  const dd = pad2(d.getDate());
+  const mm = pad2(d.getMonth() + 1);
+  const yyyy = d.getFullYear();
+  const hh = pad2(d.getHours());
+  const min = pad2(d.getMinutes());   // <-- esto es lo que te falta
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+}
+
+
+    function setStamp(){ $('stamp').textContent = `Generado: ${nowStamp()}`; }
+    console.log("STAMP TEST:", nowStamp(), "raw minutes:", new Date().getMinutes());
+    
+
+
+    function onlyDigits(v){ return (v ?? '').replace(/[^\d]/g,''); }
+
+    function escapeHtml(s){
+      return String(s ?? '')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+
+    function showAlert(msg){
+      alertBox.textContent = msg;
+      alertBox.classList.add('show');
+    }
+    function clearAlert(){
+      alertBox.textContent = '';
+      alertBox.classList.remove('show');
+    }
+
+    // ========= Tabla / Filas =========
+    function inputEl({placeholder="", type="text", required=false, pattern=null, title=null, oninput=null}={}){
+      const el = document.createElement('input');
+      el.type = type;
+      el.placeholder = placeholder;
+      if(required) el.required = true;
+      if(pattern) el.pattern = pattern;
+      if(title) el.title = title;
+      if(oninput) el.addEventListener('input', oninput);
+      return el;
+    }
+
+    function addRow(prefill = {}){
+      const tr = document.createElement('tr');
+
+      const nombre = inputEl({placeholder:"Apellido y Nombre", required:true});
+
+      // ✅ Usuario PC: máximo 12 caracteres
+      const usuario = inputEl({
+        placeholder:"usuario.pc",
+        required:true,
+        oninput:(e)=>{ e.target.value = (e.target.value ?? '').slice(0,12); }
+      });
+      usuario.maxLength = 12;
+
+      const cuil = inputEl({
+        placeholder:"XXXXXXXXXXX",
+        required:true,
+        pattern:"^[0-9]{11}$",
+        title:"CUIL debe tener 11 dígitos (sin puntos ni guiones)",
+        oninput:(e)=>{ e.target.value = onlyDigits(e.target.value).slice(0,11); }
+      });
+
+      const correo = inputEl({placeholder:"correo@policiadelaciudad.gob.ar", type:"email", required:true});
+
+      const legajo = inputEl({
+        placeholder:"Legajo",
+        required:true,
+        oninput:(e)=>{ e.target.value = onlyDigits(e.target.value); }
+      });
+
+      nombre.value = prefill.nombre ?? "";
+      usuario.value = prefill.usuario ?? "";
+      cuil.value = prefill.cuil ?? "";
+      correo.value = prefill.correo ?? "";
+      legajo.value = prefill.legajo ?? "";
+
+      const cols = [nombre, usuario, cuil, correo, legajo];
+      cols.forEach(inp => {
+        const td = document.createElement('td');
+        td.appendChild(inp);
+        tr.appendChild(td);
+      });
+
+      const tdAct = document.createElement('td');
+      const wrap = document.createElement('div');
+      wrap.className = 'row-actions';
+
+      const btnDel = document.createElement('button');
+      btnDel.type = 'button';
+      btnDel.className = 'btn small danger';
+      btnDel.textContent = 'Quitar';
+      btnDel.addEventListener('click', ()=>{
+        tr.remove();
+        if(tbody.children.length === 0) addRow();
+      });
+
+      wrap.appendChild(btnDel);
+      tdAct.appendChild(wrap);
+      tr.appendChild(tdAct);
+
+      tbody.appendChild(tr);
+    }
+
+    // ========= Validaciones =========
+    function domainAllowed(email){
+      const e = (email ?? "").toLowerCase().trim();
+      return allowedDomains.some(d => e.endsWith(d));
+    }
+
+    function validateRequired(){
+      const required = document.querySelectorAll('#pdfArea [required]');
+      for(const el of required){
+        if(!el.value || !el.value.trim()){
+          el.focus();
+          return { ok:false, msg:'Hay campos obligatorios sin completar.' };
+        }
+      }
+      return { ok:true };
+    }
+
+    function validateEmails(){
+      const respMail = $('respMail').value.trim();
+      if(!domainAllowed(respMail)){
+        $('respMail').focus();
+        return { ok:false, msg:'El correo del responsable no pertenece a un dominio institucional permitido.' };
+      }
+
+      const userMails = tbody.querySelectorAll('tr td:nth-child(4) input');
+      for(const m of userMails){
+        if(!domainAllowed(m.value.trim())){
+          m.focus();
+          return { ok:false, msg:'Hay un correo de usuario con dominio no permitido.' };
+        }
+      }
+      return { ok:true };
+    }
+
+    function validateCuilsAndDuplicates(){
+      clearAlert();
+
+      const cuilInputs = Array.from(tbody.querySelectorAll('tr td:nth-child(3) input'));
+      const userInputs = Array.from(tbody.querySelectorAll('tr td:nth-child(2) input'));
+
+      const cuilSet = new Set();
+      const userSet = new Set();
+
+      for(const c of cuilInputs){
+        const v = (c.value ?? "").trim();
+        if(!/^\d{11}$/.test(v)){
+          c.focus();
+          return { ok:false, msg:'Hay un CUIL inválido (debe tener 11 dígitos).' };
+        }
+        if(cuilSet.has(v)){
+          c.focus();
+          return { ok:false, msg:'CUIL duplicado en la grilla. Corrija antes de continuar.' };
+        }
+        cuilSet.add(v);
+      }
+
+      for(const u of userInputs){
+        const v = (u.value ?? "").trim().toLowerCase();
+        if(!v){
+          u.focus();
+          return { ok:false, msg:'Hay un Usuario de PC vacío.' };
+        }
+        if(userSet.has(v)){
+          u.focus();
+          return { ok:false, msg:'Usuario de PC duplicado en la grilla. Corrija antes de continuar.' };
+        }
+        userSet.add(v);
+      }
+
+      return { ok:true };
+    }
+
+    function validateCommonOptional(){
+      if(!$('useCommon').checked) return { ok:true };
+
+      const fields = ['comDestino','comDireccion','comTelefono','comInterno'];
+      const filled = fields.some(id => ($(id).value ?? '').trim().length > 0);
+      if(!filled){
+        showAlert('Aviso: “Datos comunes” está activo pero está todo vacío. Podés completarlo o desactivarlo.');
+      }
+      return { ok:true };
+    }
+
+    function validateAll(){
+      const a = validateRequired(); if(!a.ok) return a;
+      const b = validateEmails(); if(!b.ok) return b;
+      const c = validateCuilsAndDuplicates(); if(!c.ok) return c;
+      validateCommonOptional();
+      return { ok:true };
+    }
+
+    // ========= NUEVO: PDF listado de usuarios (cards) =========
+    function buildPdfUserList(){
+      const list = $('pdfUserList');
+      list.innerHTML = '';
+
+      const rows = Array.from(document.querySelectorAll('#tbodyUsuarios tr'));
+      rows.forEach((tr, idx) => {
+        const tds = tr.querySelectorAll('td');
+        const nombre  = tds[0]?.querySelector('input')?.value?.trim() ?? '';
+        const usuario = tds[1]?.querySelector('input')?.value?.trim() ?? '';
+        const cuil    = tds[2]?.querySelector('input')?.value?.trim() ?? '';
+        const correo  = tds[3]?.querySelector('input')?.value?.trim() ?? '';
+        const legajo  = tds[4]?.querySelector('input')?.value?.trim() ?? '';
+
+        const card = document.createElement('div');
+        card.className = 'pdf-user-card';
+        card.innerHTML = `
+          <h3>Usuario ${idx+1}</h3>
+          <div class="pdf-user-grid">
+            <div class="pdf-kv"><strong>Apellido y Nombre</strong>${escapeHtml(nombre) || '—'}</div>
+            <div class="pdf-kv"><strong>Usuario de PC</strong>${escapeHtml(usuario) || '—'}</div>
+            <div class="pdf-kv"><strong>CUIL</strong>${escapeHtml(cuil) || '—'}</div>
+            <div class="pdf-kv"><strong>Correo institucional</strong>${escapeHtml(correo) || '—'}</div>
+            <div class="pdf-kv"><strong>Legajo</strong>${escapeHtml(legajo) || '—'}</div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    // ========= PDF (Acta): convertir inputs a texto =========
+    function preparePdfValues(){
+      const area = $('pdfArea');
+
+      const fields = area.querySelectorAll('input, textarea, select');
+      fields.forEach(el => {
+        if(el.dataset.pdfBound === "1") return;
+
+        let v = "";
+        if(el.tagName === "SELECT"){
+          v = (el.options[el.selectedIndex]?.text ?? "").trim();
+        } else {
+          v = (el.value ?? "").trim();
+        }
+
+        const out = document.createElement('div');
+        out.className = 'pdf-value';
+        out.textContent = v || " ";
+        el.insertAdjacentElement('afterend', out);
+        el.dataset.pdfBound = "1";
+      });
+
+      // Resumen "Datos comunes" (compacto, 2 columnas)
+      const useCommon = $('useCommon').checked;
+      const commonSummaryId = "pdfCommonSummary";
+      const existing = $(commonSummaryId);
+      if(existing) existing.remove();
+
+      const summary = document.createElement('div');
+      summary.id = commonSummaryId;
+      summary.style.marginTop = "10px";
+      summary.style.border = "1px dashed #cbd5e1";
+      summary.style.borderRadius = "12px";
+      summary.style.padding = "10px";
+
+      const line = (label, val) => `
+        <div style="font-size:12px;line-height:1.35;margin:2px 0;">
+          <strong>${label}:</strong> ${val ? String(val).replaceAll('<','&lt;') : '—'}
+        </div>`;
+
+      if(useCommon){
+        summary.innerHTML =
+          `<div style="font-weight:900;font-size:12px;margin-bottom:6px;">Datos comunes (aplican a todos)</div>` +
+          `<div class="pdf-common-grid">` +
+            line("Destino", $('comDestino').value.trim()) +
+            line("Dirección", $('comDireccion').value.trim()) +
+            line("Teléfono", $('comTelefono').value.trim()) +
+            line("Interno", $('comInterno').value.trim()) +
+          `</div>`;
+      } else {
+        summary.innerHTML =
+          `<div style="font-weight:900;font-size:12px;margin-bottom:6px;">Datos comunes</div>` +
+          `<div style="font-size:12px;color:#475569;">No aplican (desactivado).</div>`;
+      }
+
+      // Insertarlo en Bloque 3 antes de la tabla/listado
+      const tableWrap = area.querySelector('.table-wrap');
+      tableWrap.insertAdjacentElement('beforebegin', summary);
+    }
+
+    function cleanupPdfValues(){
+      const area = $('pdfArea');
+      area.querySelectorAll('.pdf-value').forEach(n => n.remove());
+      area.querySelectorAll('[data-pdf-bound="1"]').forEach(el => el.removeAttribute('data-pdf-bound'));
+      const commonSummary = $('pdfCommonSummary');
+      if(commonSummary) commonSummary.remove();
+      // limpiar cards (opcional)
+      $('pdfUserList').innerHTML = '';
+    }
+
+    // ========= Eventos =========
+    $('btnAddRow').addEventListener('click', ()=> addRow());
+
+    $('btnReset').addEventListener('click', ()=>{
+      if(!confirm('¿Seguro que querés limpiar todo el formulario?')) return;
+      clearAlert();
+      document.querySelectorAll('#pdfArea input, #pdfArea textarea').forEach(i => i.value = "");
+      document.querySelectorAll('#pdfArea select').forEach(s => s.value = "");
+      tbody.innerHTML = "";
+      addRow();
+      setStamp();
+    });
+
+    $('useCommon').addEventListener('change', ()=>{
+      const disabled = !$('useCommon').checked;
+      ['comDestino','comDireccion','comTelefono','comInterno'].forEach(id => {
+        $(id).disabled = disabled;
+      });
+      validateCommonOptional();
+    });
+
+    $('btnPDF').addEventListener('click', async ()=>{
+      setStamp();
+      const v = validateAll();
+      if(!v.ok){ alert(v.msg); return; }
+
+      const pdfArea = $('pdfArea');
+
+      // ✅ Antes de PDF: armo listado por usuario (cards)
+      buildPdfUserList();
+
+      // ✅ Convierto inputs a texto (para encabezados/bloques)
+      preparePdfValues();
+
+      pdfArea.classList.add('for-pdf');
+
+      const opt = {
+        margin:      [10, 10, 10, 10],
+        filename:    `habilitacion_carpetas_${new Date().toISOString().slice(0,10)}.pdf`,
+        image:       { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      try{
+        await html2pdf().set(opt).from(pdfArea).save();
+      } finally {
+        pdfArea.classList.remove('for-pdf');
+        cleanupPdfValues();
+      }
+    });
+
+    // init
+    setStamp();
+    addRow();
+    ['comDestino','comDireccion','comTelefono','comInterno'].forEach(id => $(id).disabled = false);
+  </script>
+</body>
+</html>
