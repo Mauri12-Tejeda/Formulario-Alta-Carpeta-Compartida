@@ -78,6 +78,19 @@
       gap:12px;
       margin-bottom:10px;
     }
+    .header-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.header-logo{
+  height:48px;        /* controla el alto */
+  width:auto;         /* mantiene proporción */
+  max-width:220px;    /* ancho tipo logo largo */
+  object-fit:contain;
+}
+
     .pdf-header .meta{font-size:12px;color:#111}
     .pdf-header .meta strong{display:block;font-size:14px}
     .pdf-stamp{
@@ -330,12 +343,18 @@
       <div id="pdfArea" class="pdf-area">
 
         <div class="pdf-header">
-          <div class="meta">
-            <strong>Solicitud – Habilitación de Carpetas Compartidas</strong>
-            <span>Ministerio De Seguridad</span>
-          </div>
-          <div class="pdf-stamp" id="stamp"></div>
-        </div>
+  <div class="header-left">
+    <img src="logo-para-VPN.png" alt="GCBA Seguridad" class="header-logo">
+
+    <div class="meta">
+      <strong>Solicitud – Habilitación de Carpetas Compartidas</strong>
+      <span>Ministerio de Seguridad</span>
+    </div>
+  </div>
+
+  <div class="pdf-stamp" id="stamp"></div>
+</div>
+
 
         <div class="banner">
           PARA REALIZAR LA TAREA SOLICITADA ES NECESARIO COMPLETAR LA TOTALIDAD DE LOS CAMPOS DEL FORMULARIO
